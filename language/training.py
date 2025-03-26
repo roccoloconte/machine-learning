@@ -21,7 +21,7 @@ def setup_logging():
     log_dir = "logs"
     os.makedirs(log_dir, exist_ok=True)
     
-    log_file = os.path.join(log_dir, f"language_model_{time.strftime('%Y%m%d')}.log")
+    log_file = os.path.join(log_dir, f"{time.strftime('%Y%m%d%H%M%S')}.log")
     file_handler = logging.handlers.RotatingFileHandler(
         log_file, maxBytes=10*1024*1024, backupCount=5  # 10MB per file, keep 5 backups
     )
@@ -666,7 +666,7 @@ class Trainer:
             'weight_decay': 0.01,             # Weight decay for AdamW optimizer
             'batch_size': 8,                  # Batch size per update
             'gradient_accumulation_steps': 4, # Number of steps to accumulate gradients
-            'num_epochs': 2,                  # Number of training epochs
+            'num_epochs': 1,                  # Number of training epochs
             'warmup_steps': 500,              # Steps for learning rate warmup
             'seq_length': 64,                 # Sequence length for training
             
