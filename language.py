@@ -323,7 +323,7 @@ class MultiHeadLatentAttention(nn.Module):
         
         # Apply flash attention for memory efficiency
         context = flash_attention(q_rot, k_rot, v, combined_mask, self.block_size)
-        context = context.view(batch_size, seq_length, self.hidden_size)
+        context = context.reshape(batch_size, seq_length, self.hidden_size)
         return self.out_proj(context)
 
 class RMSNorm(nn.Module):
@@ -414,11 +414,18 @@ class Dataset(Dataset):
             seq_length: Length of sequence for each example
         """
         self.token_ids = token_ids
-        self.seq_length = seq_length
+        # Adjust sequence length to be no longer than the data we have
+        self.seq_length = min(seq_length, max(1, len(token_ids) // 2))
+        
+        # Ensure we have at least one example
+        if len(token_ids) <= self.seq_length:
+            # Pad the tokens to ensure we have at least one example
+            self.token_ids = token_ids + [0] * (self.seq_length + 1 - len(token_ids))
+            logger.warning(f"Data too small, padded from {len(token_ids)} to {len(self.token_ids)} tokens")
 
     def __len__(self):
         """Return the number of examples in the dataset."""
-        return len(self.token_ids) - self.seq_length
+        return max(1, len(self.token_ids) - self.seq_length)
 
     def __getitem__(self, idx):
         """
@@ -430,10 +437,20 @@ class Dataset(Dataset):
         Returns:
             Dictionary containing input_ids, labels, and attention_mask
         """
+        # Ensure we don't go out of bounds
+        idx = min(idx, len(self.token_ids) - self.seq_length - 1)
+        
         # Input is sequence starting at idx
         input_ids = self.token_ids[idx:idx + self.seq_length]
         # Labels are the next tokens (shifted by 1)
         labels = self.token_ids[idx + 1:idx + self.seq_length + 1]
+        
+        # Ensure both are the right length
+        if len(input_ids) < self.seq_length:
+            input_ids = input_ids + [0] * (self.seq_length - len(input_ids))
+        if len(labels) < self.seq_length:
+            labels = labels + [0] * (self.seq_length - len(labels))
+            
         return {
             'input_ids': torch.tensor(input_ids, dtype=torch.long),
             'labels': torch.tensor(labels, dtype=torch.long),
@@ -521,11 +538,6 @@ class Model(nn.Module):
                 input_ids = torch.cat([input_ids, next_token], dim=-1)
             generated_ids = input_ids.squeeze(0).tolist()
             return tokenizer.detokenize(generated_ids)
-
-    # Enable PyTorch 2.0+ compilation if available
-    if hasattr(torch, 'compile'):
-        logger.info("Using torch.compile for performance optimization")
-        model = torch.compile(model)
 
 class WarmupLearningRate:
     """
@@ -675,6 +687,13 @@ class Trainer:
         # Move model to the appropriate device (CPU, GPU, or MPS)
         model = model.to(self.device)
         logger.info(f"Model moved to device: {self.device}")
+        
+        # Enable PyTorch 2.0+ compilation if available
+        if hasattr(torch, 'compile') and self.device.type != 'mps':
+            logger.info("Using torch.compile for performance optimization")
+            model = torch.compile(model)
+        else:
+            logger.info(f"Skipping torch.compile as it's not supported on {self.device.type}")
         
         # Set numerical precision based on configuration
         precision = self.config['precision']
@@ -835,7 +854,21 @@ class Trainer:
         
         # Tokenize data if cache doesn't exist
         logger.info("Tokenizing dataset")
-        token_ids = [vocab[token] for token in tokenizer.tokenize(text)]
+        
+        # Add handling for unknown tokens
+        token_ids = []
+        unknown_token_id = len(vocab)  # Use the next available ID for unknown tokens
+        unknown_tokens = set()
+        
+        for token in tokenizer.tokenize(text):
+            if token in vocab:
+                token_ids.append(vocab[token])
+            else:
+                token_ids.append(unknown_token_id)
+                unknown_tokens.add(token)
+        
+        if unknown_tokens:
+            logger.warning(f"Found {len(unknown_tokens)} unknown tokens: {unknown_tokens}")
         
         # Save tokenized data to cache for future use
         if cache_file:
@@ -849,15 +882,15 @@ if __name__ == "__main__":
     logger.info("Starting main execution")
     
     # Download sample dataset (Shakespeare text)
-    url = "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinys Shakespeare/input.txt"
+    url = "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt"
     logger.info(f"Downloading dataset from {url}")
     response = requests.get(url)
-    with open("tinys Shakespeare.txt", "w") as f:
+    with open("tinyshakespeare.txt", "w") as f:
         f.write(response.text)
     logger.info("Dataset downloaded and saved")
 
     # Load dataset into memory
-    with open("tinys Shakespeare.txt", "r") as f:
+    with open("tinyshakespeare.txt", "r") as f:
         text = f.read()
     logger.info(f"Loaded text data with length: {len(text)}")
 
@@ -882,12 +915,18 @@ if __name__ == "__main__":
     # Create the trainer instance
     trainer = Trainer()
     
-    # Configure for MPS (Apple Silicon GPU) if available
+    # Set device to Apple Silicon GPU if available, otherwise CPU
     if torch.backends.mps.is_available():
-        logger.info("MPS is available - configuring for optimal performance")
-        # For MPS, FP32 is generally more reliable than FP16
-        trainer.config['precision'] = 'fp32'
-        logger.info(f"Set precision to {trainer.config['precision']} for MPS")
+        device = torch.device("mps")
+        logger.info("Using MPS (Apple Silicon GPU)")
+    elif torch.cuda.is_available():
+        device = torch.device("cuda")
+        logger.info("Using CUDA GPU")
+    else:
+        device = torch.device("cpu")
+        logger.info("Using CPU")
+
+    trainer.device = device
     
     # Tokenize and prepare datasets (with caching for efficiency)
     train_token_ids = trainer.prepare_tokenized_data(train_text, tokenizer, vocab, "cache/train_tokens.pt")
@@ -901,18 +940,20 @@ if __name__ == "__main__":
     test_dataset = Dataset(test_token_ids, trainer.config['seq_length'])
     logger.info(f"Datasets created - Train samples: {len(train_dataset)}, Val samples: {len(val_dataset)}, Test samples: {len(test_dataset)}")
 
-    # Update config with actual vocabulary size
-    trainer.config['vocab_size'] = len(vocab)
+    # Update config with actual vocabulary size plus one for unknown tokens
+    trainer.config['vocab_size'] = len(vocab) + 1
     
+    # Adjust sequence length based on the data size
+    max_data_size = max(len(train_token_ids), len(val_token_ids), len(test_token_ids))
+    trainer.config['seq_length'] = min(trainer.config['seq_length'], max(1, max_data_size // 2))
+    logger.info(f"Adjusted sequence length to {trainer.config['seq_length']} based on data size")
+
     # Create data loaders for efficient batched processing
     train_dataloader = DataLoader(train_dataset, batch_size=trainer.config['batch_size'], shuffle=True)
     val_dataloader = DataLoader(val_dataset, batch_size=trainer.config['batch_size'], shuffle=False)
     test_dataloader = DataLoader(test_dataset, batch_size=trainer.config['batch_size'], shuffle=False)
     logger.info(f"Dataloaders created - Train batches: {len(train_dataloader)}, Val batches: {len(val_dataloader)}, Test batches: {len(test_dataloader)}")
 
-    # Set device to Apple Silicon GPU if available
-    device = torch.device("mps")
-    
     # Initialize the model
     model = Model(trainer.config)
     logger.info("Model initialized")
