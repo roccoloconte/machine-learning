@@ -1,7 +1,0 @@
-save model checkpoints
-restart from checkpoint
-
-save tokenizer before training so you can reuse it for inference
-
-add more evaluation metrics
-add visualization metrics

@@ -1,0 +1,27 @@
+2025-05-09 11:39:16,928 - root - INFO - Logging to ./image/logs/training_20250509_113916.log
+2025-05-09 11:39:16,928 - __main__ - INFO - Starting training execution
+2025-05-09 11:39:16,941 - __main__ - INFO - Using MPS (Apple Silicon GPU)
+2025-05-09 11:39:16,941 - __main__ - INFO - Creating dataloaders
+2025-05-09 11:39:16,942 - image.dataset.dataset - INFO - Downloading MNIST dataset
+2025-05-09 11:39:24,112 - image.dataset.dataset - INFO - Train dataset size: 54000
+2025-05-09 11:39:24,112 - image.dataset.dataset - INFO - Validation dataset size: 6000
+2025-05-09 11:39:24,112 - image.dataset.dataset - INFO - Test dataset size: 10000
+2025-05-09 11:39:24,112 - __main__ - INFO - Dataloaders created
+2025-05-09 11:39:24,112 - __main__ - INFO - Initializing Vision Transformer model
+2025-05-09 11:39:24,133 - __main__ - INFO - Model initialized with 4759050 parameters
+2025-05-09 11:39:24,133 - __main__ - INFO - Starting model training
+2025-05-09 11:40:31,473 - image.training.trainer - INFO - Epoch 1/10 - Train Loss: 1.7444, Train Acc: 35.91%
+2025-05-09 11:40:35,350 - image.training.trainer - INFO - Epoch 1/10 - Val Loss: 1.2558, Val Acc: 55.10%
+2025-05-09 11:40:35,477 - image.training.trainer - INFO - Saved best model with validation loss: 1.2558
+2025-05-09 11:41:40,254 - image.training.trainer - INFO - Epoch 2/10 - Train Loss: 0.9895, Train Acc: 64.59%
+2025-05-09 11:41:43,989 - image.training.trainer - INFO - Epoch 2/10 - Val Loss: 0.6600, Val Acc: 77.13%
+2025-05-09 11:41:44,087 - image.training.trainer - INFO - Saved best model with validation loss: 0.6600
+2025-05-09 11:42:48,810 - image.training.trainer - INFO - Epoch 3/10 - Train Loss: 0.5253, Train Acc: 82.41%
+2025-05-09 11:42:52,571 - image.training.trainer - INFO - Epoch 3/10 - Val Loss: 0.3097, Val Acc: 90.10%
+2025-05-09 11:42:52,686 - image.training.trainer - INFO - Saved best model with validation loss: 0.3097
+2025-05-09 11:43:57,505 - image.training.trainer - INFO - Epoch 4/10 - Train Loss: 0.3156, Train Acc: 89.82%
+2025-05-09 11:44:01,327 - image.training.trainer - INFO - Epoch 4/10 - Val Loss: 0.2134, Val Acc: 93.08%
+2025-05-09 11:44:01,440 - image.training.trainer - INFO - Saved best model with validation loss: 0.2134
+2025-05-09 11:45:06,555 - image.training.trainer - INFO - Epoch 5/10 - Train Loss: 0.2250, Train Acc: 92.88%
+2025-05-09 11:45:10,426 - image.training.trainer - INFO - Epoch 5/10 - Val Loss: 0.1815, Val Acc: 94.43%
+2025-05-09 11:45:10,532 - image.training.trainer - INFO - Saved best model with validation loss: 0.1815

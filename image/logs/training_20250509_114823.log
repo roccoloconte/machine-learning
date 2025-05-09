@@ -1,0 +1,25 @@
+2025-05-09 11:48:23,768 - root - INFO - Logging to ./image/logs/training_20250509_114823.log
+2025-05-09 11:48:23,768 - __main__ - INFO - Starting training execution
+2025-05-09 11:48:23,780 - __main__ - INFO - Using MPS (Apple Silicon GPU)
+2025-05-09 11:48:23,780 - __main__ - INFO - Creating dataloaders
+2025-05-09 11:48:23,781 - image.dataset.dataset - INFO - Downloading MNIST dataset
+2025-05-09 11:48:23,800 - image.dataset.dataset - INFO - Train dataset size: 54000
+2025-05-09 11:48:23,800 - image.dataset.dataset - INFO - Validation dataset size: 6000
+2025-05-09 11:48:23,800 - image.dataset.dataset - INFO - Test dataset size: 10000
+2025-05-09 11:48:23,800 - __main__ - INFO - Dataloaders created
+2025-05-09 11:48:23,800 - __main__ - INFO - Initializing Vision Transformer model
+2025-05-09 11:48:23,814 - __main__ - INFO - Model initialized with 4759050 parameters
+2025-05-09 11:48:23,814 - __main__ - INFO - Starting model training
+2025-05-09 11:49:28,589 - image.training.trainer - INFO - Epoch 1/1 - Train Loss: 1.2538, Train Acc: 54.60%
+2025-05-09 11:49:32,074 - image.training.trainer - INFO - Epoch 1/1 - Val Loss: 0.6928, Val Acc: 76.48%
+2025-05-09 11:49:32,182 - image.training.trainer - INFO - Saved best model with validation loss: 0.6928
+2025-05-09 11:49:32,519 - image.training.trainer - INFO - Training completed. Final model saved.
+2025-05-09 11:49:32,519 - __main__ - INFO - Evaluating model on test set
+2025-05-09 11:49:37,115 - __main__ - INFO - Test Loss: 0.6594, Test Accuracy: 77.01%
+2025-05-09 11:49:37,115 - __main__ - INFO - Visualizing predictions
+2025-05-09 11:49:39,117 - image.utils.visualization - INFO - Saved prediction visualization to ./image/logs/visualizations/sample_predictions.png
+2025-05-09 11:49:39,118 - __main__ - INFO - Visualizing attention maps
+2025-05-09 11:49:41,413 - image.utils.visualization - INFO - Saved patch embedding visualizations to ./image/logs/visualizations/attention
+2025-05-09 11:49:41,413 - image.utils.visualization - INFO - Note: These visualize patch embedding activations rather than attention maps
+2025-05-09 11:49:41,413 - image.utils.visualization - INFO - To get actual attention maps, model code would need to be modified to return attention weights
+2025-05-09 11:49:41,413 - __main__ - INFO - Training and evaluation complete

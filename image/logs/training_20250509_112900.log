@@ -1,0 +1,5 @@
+2025-05-09 11:29:00,622 - root - INFO - Logging to ./image/logs/training_20250509_112900.log
+2025-05-09 11:29:00,622 - __main__ - INFO - Starting training execution
+2025-05-09 11:29:00,642 - __main__ - INFO - Using MPS (Apple Silicon GPU)
+2025-05-09 11:29:00,642 - __main__ - INFO - Creating dataloaders
+2025-05-09 11:29:00,642 - image.dataset.dataset - INFO - Downloading MNIST dataset
