@@ -1,0 +1,103 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Model checkpoints and large files
+*.pt
+*.pth
+*.pkl
+*.bin
+*.safetensors
+*.h5
+*.hdf5
+*.ckpt
+*.weights
+*.onnx
+*.tflite
+*.pb
+*.tfl
+*.lite
+*.mlmodel
+*.mlpackage
+
+# Dataset files
+*.csv
+*.dat
+*.data
+*.idx
+*.ubyte
+*.gz
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+
+# Logs and outputs
+logs/
+outputs/
+runs/
+*.log
+*.out
+*.err
+tensorboard/
+wandb/
+mlruns/
+
+# Environment
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.python-version
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+*.sublime-workspace
+*.sublime-project
+
+# Project specific
+image/checkpoints/
+text/checkpoints/
+text/models/
+tuning/outputs/
+language/cache/
+language/logs/
+language/model.pth
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*~ 
