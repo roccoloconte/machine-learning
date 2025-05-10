@@ -14,7 +14,6 @@ pip install torch numpy requests tqdm wandb
 The model can work with any text dataset. We provide utilities to download some common datasets:
 
 ```bash
-# Download TinyShakespeare dataset
 python3 -m text.data.download tinyshakespeare
 ```
 
@@ -28,10 +27,9 @@ First, train a BPE tokenizer on your dataset:
 
 ```bash
 python3 -m text.main tokenizer \
-    --data-path text/dataset/your_dataset.txt \
-    --output-path models/tokenizer.pkl \
-    --seed 42 \
-    --vocab-size 50000
+    --data-path text/dataset/tinyshakespeare.txt \
+    --output-path text/models/tokenizer.pkl \
+    --vocab-size 1000
 ```
 
 Parameters:
@@ -45,13 +43,14 @@ Train the model using your dataset and the trained tokenizer:
 
 ```bash
 python3 -m text.main train \
-    --data-path text/dataset/your_dataset.txt \
-    --tokenizer-path models/tokenizer.pkl \
-    --model-path models/model.pth \
+    --data-path text/dataset/tinyshakespeare.txt \
+    --tokenizer-path text/models/tokenizer.pkl \
+    --model-path text/models/model.pth \
     --epochs 10 \
-    --batch-size 32 \
-    --seed 42 \
-    --learning-rate 5e-4
+    --batch-size 64 \
+    --learning-rate 3e-4 \
+    --grad-clip 1.0 \
+    --seed 42
 ```
 
 Parameters:
@@ -69,8 +68,8 @@ Generate text using your trained model:
 
 ```bash
 python3 -m text.main inference \
-    --model-path models/model.pth \
-    --tokenizer-path models/tokenizer.pkl \
+    --model-path text/models/model.pth \
+    --tokenizer-path text/models/tokenizer.pkl \
     --prompt "Once upon a time" \
     --max-length 100 \
     --seed 42 \
